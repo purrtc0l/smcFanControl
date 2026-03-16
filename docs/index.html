@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>smcFanControl Community Edition</title>
+  <meta name="description" content="Fan control for Intel Macs. Lightweight, modern, open source.">
+  <style>
+    :root {
+      --accent: #2e8cb3;
+      --accent-hover: #3aa3cc;
+      --bg: #1a1a1e;
+      --surface: #24242a;
+      --surface-border: #33333a;
+      --text: #e8e8ec;
+      --text-muted: #9a9aa4;
+      --text-dim: #6e6e78;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 48px;
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .tagline {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+    }
+
+    .description {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .download-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .download-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .download-note {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* Features */
+    .features {
+      padding: 48px 0;
+    }
+
+    .features h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+
+    .feature-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Size comparison */
+    .comparison {
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .comparison h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .size-bars {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .size-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 14px;
+    }
+
+    .size-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      width: 130px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .size-bar {
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .size-bar.community {
+      background: var(--accent);
+      width: 9%;
+      min-width: 60px;
+    }
+
+    .size-bar.original {
+      background: var(--surface-border);
+      width: 100%;
+    }
+
+    .size-note {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--surface-border);
+      padding: 32px 0;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    footer p {
+      font-size: 0.825rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero {
+        padding: 56px 0 36px;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .tagline {
+        font-size: 1rem;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .size-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .size-label {
+        text-align: left;
+        width: auto;
+      }
+
+      .size-bar {
+        width: 100% !important;
+      }
+
+      .size-bar.community {
+        width: 30% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>smcFanControl <span>Community Edition</span></h1>
+      <p class="tagline">Fan control for Intel Macs. Lightweight, modern, open source.</p>
+      <p class="description">
+        Monitor and control the fans in your Intel Mac. Set minimum fan speeds
+        per application or create custom presets for different workloads.
+        A community-maintained fork of the classic macOS utility, rebuilt with
+        a modern interface and dramatically reduced footprint.
+      </p>
+      <a href="https://github.com/wolffcatskyy/smcFanControl/releases/latest" class="download-btn">
+        Download Latest Release
+      </a>
+      <p class="download-note">Requires macOS 10.13 or later on Intel Macs</p>
+    </section>
+
+    <section class="features">
+      <h2>What's New in the Community Edition</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>SF Symbols Icon</h3>
+          <p>Native SF Symbol menu bar icon that blends seamlessly with modern macOS.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Dark Mode</h3>
+          <p>Full dark mode support that follows your system appearance setting.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Icon-Only Mode</h3>
+          <p>Minimal menu bar footprint. Show just the icon with no text for a cleaner look.</p>
+        </div>
+        <div class="feature-card">
+          <h3>500 KB Total</h3>
+          <p>Over 90% smaller than the original. No bloat, just fan control.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="comparison">
+      <h2>Size Comparison</h2>
+      <div class="size-bars">
+        <div class="size-row">
+          <span class="size-label">Community Edition</span>
+          <div class="size-bar community">500 KB</div>
+        </div>
+        <div class="size-row">
+          <span class="size-label">Original (2.6)</span>
+          <div class="size-bar original">5.7 MB</div>
+        </div>
+      </div>
+      <p class="size-note">Same functionality, 91% smaller</p>
+    </section>
+
+    <footer>
+      <p>
+        Licensed under <a href="https://github.com/wolffcatskyy/smcFanControl/blob/master/LICENSE">GPL v2</a><br>
+        Originally created by Hendrik Holtmann<br>
+        Community fork maintained by <a href="https://github.com/wolffcatskyy">wolffcatskyy</a>
+        &middot;
+        <a href="https://github.com/wolffcatskyy/smcFanControl">View on GitHub</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
