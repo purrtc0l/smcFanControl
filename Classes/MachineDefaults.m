@@ -99,11 +99,13 @@
 -(NSDictionary*)get_machine_defaults{
     
     if (!supported) {
-        NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Alert!",nil)
-						  defaultButton:NSLocalizedString(@"Continue",nil) alternateButton:NSLocalizedString(@"Quit",nil) otherButton:nil
-						informativeTextWithFormat:NSLocalizedString(@"smcFanControl has not been tested on this machine yet, but it should run if you follow the instructions. \n\nIf you choose to continue, please make sure you have no other FanControl-software running. Otherwise please quit, deinstall the other software, restart your machine and rerun smcFanControl!",nil)];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:NSLocalizedString(@"Alert!",nil)];
+        [alert setInformativeText:NSLocalizedString(@"smcFanControl has not been tested on this machine yet, but it should run if you follow the instructions. \n\nIf you choose to continue, please make sure you have no other FanControl-software running. Otherwise please quit, deinstall the other software, restart your machine and rerun smcFanControl!",nil)];
+        [alert addButtonWithTitle:NSLocalizedString(@"Continue",nil)];
+        [alert addButtonWithTitle:NSLocalizedString(@"Quit",nil)];
 		NSModalResponse code=[alert runModal];
-		if (code == NSAlertDefaultReturn) {
+		if (code == NSAlertFirstButtonReturn) {
 			[self readFromSMC];
             [self refreshPlist];
 		} else {

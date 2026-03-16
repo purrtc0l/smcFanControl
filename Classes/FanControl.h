@@ -25,7 +25,6 @@
 #import "NSFileManager+DirectoryLocations.h"
 #import "smc.h"
 #import "smcWrapper.h"
-#import "IOHIDSensor.h"
 #import "MachineDefaults.h"
 
 #import "Power.h"
@@ -112,9 +111,6 @@
 
 
 -(void)terminate:(id)sender;
-
-- (IBAction)paypal:(id)sender;
-- (IBAction)visitHomepage:(id)sender;
 
 - (IBAction)closePreferences:(id)sender;
 - (IBAction)savePreferences:(id)sender;

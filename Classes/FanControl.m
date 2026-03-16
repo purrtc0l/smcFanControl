@@ -27,11 +27,11 @@
 #import <Security/Authorization.h>
 #import <Security/AuthorizationDB.h>
 #import <Security/AuthorizationTags.h>
-#import <Sparkle/SUUpdater.h>
-#import "SystemVersion.h"
+// Sparkle removed — dead update server (eidac.de), will add GitHub-based updates later
 
 @interface FanControl ()
 + (void)copyMachinesIfNecessary;
++ (void)terminateIfNoFans;
 @property (NS_NONATOMIC_IOSONLY, getter=isInAutoStart, readonly) BOOL inAutoStart;
 - (void)setStartAtLogin:(BOOL)enabled;
 + (void)checkRightStatus:(OSStatus)status;
@@ -51,17 +51,28 @@ NSUserDefaults *defaults;
     
 	//avoid Zombies when starting external app
 	signal(SIGCHLD, SIG_IGN);
-    
-    [FanControl copyMachinesIfNecessary];
+
 	//check owner and suid rights
 	[FanControl setRights];
 
 	//talk to smc
 	[smcWrapper init];
-	
+
+	[FanControl terminateIfNoFans];
+
+	[FanControl copyMachinesIfNecessary];
+
 	//app in foreground for update notifications
 	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 
+}
+
++(void) terminateIfNoFans {
+    int fan_num = [smcWrapper get_fan_num];
+    if (fan_num <= 0) {
+        NSLog(@"Exiting as %d fans were detected for Model Identifier: %@", fan_num, [MachineDefaults computerModel]);
+        [[NSApplication sharedApplication] terminate:self];
+    }
 }
 
 +(void)copyMachinesIfNecessary
@@ -150,14 +161,10 @@ NSUserDefaults *defaults;
 			@0, PREF_AC_SELECTION,
 			@0, PREF_CHARGING_SELECTION,
 			@0, PREF_MENU_DISPLAYMODE,
-#if TARGET_CPU_ARM64
-            @"Tp0D",PREF_TEMPERATURE_SENSOR,
-#else
             @"TC0D",PREF_TEMPERATURE_SENSOR,
-#endif
             @0, PREF_NUMBEROF_LAUNCHES,
             @NO,PREF_DONATIONMESSAGE_DISPLAY,
-			[NSArchiver archivedDataWithRootObject:[NSColor blackColor]],PREF_MENU_TEXTCOLOR,
+			[NSKeyedArchiver archivedDataWithRootObject:[NSColor blackColor] requiringSecureCoding:NO error:nil],PREF_MENU_TEXTCOLOR,
 			favorites,PREF_FAVORITES_ARRAY,
 	nil]];
 	
@@ -205,7 +212,7 @@ NSUserDefaults *defaults;
 	[faqText replaceCharactersInRange:NSMakeRange(0,0) withRTF: [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"F.A.Q" ofType:@"rtf"]]];
 	[self apply_settings:nil controllerindex:[[defaults objectForKey:PREF_SELECTION_DEFAULT] intValue]];
 	[[[[theMenu itemWithTag:1] submenu] itemAtIndex:[[defaults objectForKey:PREF_SELECTION_DEFAULT] intValue]] setState:NSOnState];
-	[[sliderCell dataCell] setControlSize:NSSmallControlSize];
+	[[sliderCell dataCell] setControlSize:NSControlSizeSmall];
 	[self changeMenu:nil];
 	
 	//seting toolbar image
@@ -228,28 +235,8 @@ NSUserDefaults *defaults;
     
     //autostart
     [[NSUserDefaults standardUserDefaults] setValue:@([self isInAutoStart]) forKey:PREF_AUTOSTART_ENABLED];
-     NSUInteger numLaunches = [[[NSUserDefaults standardUserDefaults] objectForKey:PREF_NUMBEROF_LAUNCHES] integerValue];
-    [[NSUserDefaults standardUserDefaults] setObject:@(numLaunches+1) forKey:PREF_NUMBEROF_LAUNCHES];
-    if (numLaunches != 0 && (numLaunches % 3 == 0) && ![[[NSUserDefaults standardUserDefaults] objectForKey:PREF_DONATIONMESSAGE_DISPLAY] boolValue]) {
-        [self displayDonationMessage];
-    }
-    
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(readFanData:) name:@"AppleInterfaceThemeChangedNotification" object:nil];
 
-}
-
--(void)displayDonationMessage
-{
-    NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Consider a donation",nil)
-                                     defaultButton:NSLocalizedString(@"Donate over Paypal",nil) alternateButton:NSLocalizedString(@"Never ask me again",nil) otherButton:NSLocalizedString(@"Remind me later",nil)
-                         informativeTextWithFormat:NSLocalizedString(@"smcFanControl keeps your Mac cool since 2006.\n\nIf smcFanControl is helfpul for you and you want to support further development, a small donation over Paypal is much appreciated.",nil)];
-    NSModalResponse code=[alert runModal];
-    if (code == NSAlertDefaultReturn) {
-        [self paypal:nil];
-        [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:PREF_DONATIONMESSAGE_DISPLAY];
-    } else if (code == NSAlertAlternateReturn) {
-        [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:PREF_DONATIONMESSAGE_DISPLAY];
-    }
 }
 
 
@@ -321,7 +308,7 @@ NSUserDefaults *defaults;
 
 - (void) deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 {
-    if (returnCode==0) {
+    if (returnCode==NSAlertSecondButtonReturn) {
 		//delete favorite, but resets presets before
 		[self check_deletion:PREF_BATTERY_SELECTION];
 		[self check_deletion:PREF_AC_SELECTION];
@@ -332,19 +319,15 @@ NSUserDefaults *defaults;
 
 - (IBAction)delete_favorite:(id)sender{
 	
-    NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Delete favorite",nil) defaultButton:NSLocalizedString(@"No",nil) alternateButton:NSLocalizedString(@"Yes",nil) otherButton:nil informativeTextWithFormat:[NSString stringWithFormat:NSLocalizedString(@"Do you really want to delete the favorite %@?",nil), [FavoritesController arrangedObjects][[FavoritesController selectionIndex]][@"Title"] ]];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSLocalizedString(@"Delete favorite",nil)];
+    [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(@"Do you really want to delete the favorite %@?",nil), [FavoritesController arrangedObjects][[FavoritesController selectionIndex]][@"Title"]]];
+    [alert addButtonWithTitle:NSLocalizedString(@"No",nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Yes",nil)];
     
     [alert beginSheetModalForWindow:mainwindow modalDelegate:self didEndSelector:@selector(deleteAlertDidEnd:returnCode:contextInfo:) contextInfo:NULL];
 }
 
-
-- (BOOL)usesIOHIDForTemperature {
-#if TARGET_CPU_ARM64
-    return [[MachineDefaults computerModel] rangeOfString:@"MacBookPro17"].length > 0;
-#else
-    return false;
-#endif
-}
 
 // Called via a timer mechanism. This is where all the temp / RPM reading is done.
 //reads fan data and updates the gui
@@ -410,11 +393,7 @@ NSUserDefaults *defaults;
     
     if (bNeedTemp == true) {
         // Read current temperature and format text for the menubar.
-        if ([self usesIOHIDForTemperature]) {
-            c_temp = [IOHIDSensor getSOCTemperature];
-        } else {
-            c_temp = [smcWrapper get_maintemp];
-        }
+        c_temp = [smcWrapper get_maintemp];
         
         if ([[defaults objectForKey:PREF_TEMP_UNIT] intValue]==0) {
             temp = [NSString stringWithFormat:@"%@%CC",@(c_temp),(unsigned short)0xb0];
@@ -429,7 +408,7 @@ NSUserDefaults *defaults;
     NSMutableAttributedString *s_status = nil;
     NSMutableParagraphStyle *paragraphStyle = nil;
     
-    NSColor *menuColor = (NSColor*)[NSUnarchiver unarchiveObjectWithData:[defaults objectForKey:PREF_MENU_TEXTCOLOR]];
+    NSColor *menuColor = (NSColor*)[NSKeyedUnarchiver unarchivedObjectOfClass:[NSColor class] fromData:[defaults objectForKey:PREF_MENU_TEXTCOLOR] error:nil];
     BOOL setColor = NO;
     if (!([[menuColor colorUsingColorSpaceName:
               NSCalibratedWhiteColorSpace] whiteComponent] == 0.0) || ![statusItem respondsToSelector:@selector(button)]) setColor = YES;
@@ -462,9 +441,7 @@ NSUserDefaults *defaults;
             [paragraphStyle setAlignment:NSLeftTextAlignment];
             [s_status addAttribute:NSFontAttributeName value:[NSFont fontWithName:@"Lucida Grande" size:fsize] range:NSMakeRange(0,[s_status length])];
             [s_status addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0,[s_status length])];
-            if (menuBarSetting == 0)
-                [s_status addAttribute:NSBaselineOffsetAttributeName value:[NSNumber numberWithFloat: -6] range:NSMakeRange(0, [s_status length])];
-         
+
             if (setColor) [s_status addAttribute:NSForegroundColorAttributeName value:menuColor  range:NSMakeRange(0,[s_status length])];
             
            
@@ -549,16 +526,6 @@ NSUserDefaults *defaults;
 	[DefaultsController revert:sender];
 }
 
--(void)setFansToAuto:(bool)is_auto {
-    for (int fan_index=0;fan_index<[[FavoritesController arrangedObjects][0][PREF_FAN_ARRAY] count];fan_index++) {
-        [self setFanToAuto:fan_index is_auto:is_auto];
-    }
-}
-
--(void)setFanToAuto:(int)fan_index is_auto:(bool)is_auto {
-    [smcWrapper setKey_external:[NSString stringWithFormat:@"F%dMd",fan_index] value:is_auto ? @"00" : @"01"];
-}
-
 //set the new fan settings
 
 -(void)apply_settings:(id)sender controllerindex:(int)cIndex{
@@ -573,7 +540,7 @@ NSUserDefaults *defaults;
             [smcWrapper setKey_external:[NSString stringWithFormat:@"F%dMn",i] value:[[FanController arrangedObjects][i][PREF_FAN_SELSPEED] tohex]];
         } else {
             bool is_auto = [[FanController arrangedObjects][i][PREF_FAN_AUTO] boolValue];
-            [self setFanToAuto:i is_auto:is_auto];
+            [smcWrapper setKey_external:[NSString stringWithFormat:@"F%dMd",i] value:is_auto ? @"00" : @"01"];
             float f_val = [[FanController arrangedObjects][i][PREF_FAN_SELSPEED] floatValue];
             uint8 *vals = (uint8*)&f_val;
             //NSString str_val = ;
@@ -682,9 +649,15 @@ NSUserDefaults *defaults;
 
 //just a helper to bringt update-info-window to the front
 - (IBAction)updateCheck:(id)sender{
-    SUUpdater *updater = [[SUUpdater alloc] init];
-	[updater checkForUpdates:sender];
-	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    // TODO: Implement GitHub Releases-based update check
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:@"Check for Updates"];
+    [alert setInformativeText:@"Visit the GitHub releases page to check for updates."];
+    [alert addButtonWithTitle:@"Open GitHub"];
+    [alert addButtonWithTitle:@"Cancel"];
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/wolffcatskyy/smcFanControl/releases"]];
+    }
 }
 
 
@@ -700,43 +673,37 @@ NSUserDefaults *defaults;
     }
     error = nil;
     if ([[MachineDefaults computerModel] rangeOfString:@"MacBookPro15"].location != NSNotFound) {
-        [self setFansToAuto:true];
+        for (int i=0;i<[[FavoritesController arrangedObjects][0][PREF_FAN_ARRAY] count];i++) {
+            [smcWrapper setKey_external:[NSString stringWithFormat:@"F%dMd",i] value:@"00"];
+        }
     }
 
     NSString *domainName = [[NSBundle mainBundle] bundleIdentifier];
     [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:domainName];
     
     
-    NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Shutdown required",nil)
-                                     defaultButton:NSLocalizedString(@"OK",nil) alternateButton:nil otherButton:nil
-                         informativeTextWithFormat:NSLocalizedString(@"Please shutdown your computer now to return to default fan settings.",nil)];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSLocalizedString(@"Shutdown required",nil)];
+    [alert setInformativeText:NSLocalizedString(@"Please shutdown your computer now to return to default fan settings.",nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"OK",nil)];
     NSModalResponse code=[alert runModal];
-    if (code == NSAlertDefaultReturn) {
+    if (code == NSAlertFirstButtonReturn) {
         [[NSApplication sharedApplication] terminate:self];
     }
 }
 
 - (IBAction)resetSettings:(id)sender
 {
-    NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Reset Settings",nil)
-                                     defaultButton:NSLocalizedString(@"Yes",nil) alternateButton:NSLocalizedString(@"No",nil) otherButton:nil
-                         informativeTextWithFormat:NSLocalizedString(@"Do you want to reset smcFanControl to default settings? Favorites will be deleted and fans will return to default speed.",nil)];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSLocalizedString(@"Reset Settings",nil)];
+    [alert setInformativeText:NSLocalizedString(@"Do you want to reset smcFanControl to default settings? Favorites will be deleted and fans will return to default speed.",nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Yes",nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"No",nil)];
     NSModalResponse code=[alert runModal];
-    if (code == NSAlertDefaultReturn) {
+    if (code == NSAlertFirstButtonReturn) {
         [self performReset];
-    } else if (code == NSAlertAlternateReturn) {
-
     }
 
-}
-
-- (IBAction)visitHomepage:(id)sender{
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.eidac.de/products"]];
-}
-
-
-- (IBAction)paypal:(id)sender{
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=holtmann%40campus%2dvirtuell%2ede&no_shipping=0&no_note=1&tax=0&currency_code=EUR&bn=PP%2dDonationsBF&charset=UTF%2d8&country=US"]];
 }
 
 -(void) syncBinder:(Boolean)bind{
@@ -756,10 +723,6 @@ NSUserDefaults *defaults;
 #pragma mark **Power Watchdog-Methods**
 
 - (void)systemWillSleep:(id)sender{
-#if TARGET_CPU_ARM64
-    [FanControl setRights];
-    [self setFansToAuto:true];
-#endif
 }
 
 - (void)systemDidWakeFromSleep:(id)sender{
@@ -879,11 +842,14 @@ NSUserDefaults *defaults;
 +(void) checkRightStatus:(OSStatus) status
 {
     if (status != errAuthorizationSuccess) {
-        NSAlert *alert = [NSAlert alertWithMessageText:@"Authorization failed" defaultButton:@"Quit" alternateButton:nil otherButton:nil informativeTextWithFormat:[NSString stringWithFormat:@"Authorization failed with code %d",status]];
-        [alert setAlertStyle:2];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Authorization failed"];
+        [alert setInformativeText:[NSString stringWithFormat:@"Authorization failed with code %d",status]];
+        [alert addButtonWithTitle:@"Quit"];
+        [alert setAlertStyle:NSAlertStyleCritical];
         NSInteger result = [alert runModal];
-        
-        if (result == NSAlertDefaultReturn) {
+
+        if (result == NSAlertFirstButtonReturn) {
             [[NSApplication sharedApplication] terminate:self];
         }
     }
@@ -915,7 +881,7 @@ NSUserDefaults *defaults;
 	int i;
 	char *args[255];
 	for(i = 0;i < [argsArray count];i++){
-		args[i] = (char *)[argsArray[i]cString];
+		args[i] = (char *)[argsArray[i] UTF8String];
 	}
 	args[i] = NULL;
 	status=AuthorizationExecuteWithPrivileges(authorizationRef,[tool UTF8String],0,args,&commPipe);
@@ -926,7 +892,7 @@ NSUserDefaults *defaults;
 	tool=@"/bin/chmod";
 	argsArray = @[@"6555",smcpath];
 	for(i = 0;i < [argsArray count];i++){
-		args[i] = (char *)[argsArray[i]cString];
+		args[i] = (char *)[argsArray[i] UTF8String];
 	}
 	args[i] = NULL;
 	status=AuthorizationExecuteWithPrivileges(authorizationRef,[tool UTF8String],0,args,&commPipe);

@@ -24,7 +24,7 @@
 #include <string.h>
 #include <IOKit/IOKitLib.h>
 #include "smc.h"
-#include <libkern/OSAtomic.h>
+#include <os/lock.h>
 
 // Cache the keyInfo to lower the energy impact of SMCReadKey() / SMCReadKey2()
 #define KEY_INFO_CACHE_SIZE 100
@@ -34,7 +34,7 @@ struct {
 } g_keyInfoCache[KEY_INFO_CACHE_SIZE];
 
 int g_keyInfoCacheCount = 0;
-OSSpinLock g_keyInfoSpinLock = 0;
+os_unfair_lock g_keyInfoSpinLock = OS_UNFAIR_LOCK_INIT;
 
 kern_return_t SMCCall2(int index, SMCKeyData_t *inputStructure, SMCKeyData_t *outputStructure, io_connect_t conn);
 
@@ -287,14 +287,11 @@ void printVal(SMCVal_t val)
 kern_return_t SMCOpen(io_connect_t *conn)
 {
     kern_return_t result;
-    mach_port_t   masterPort;
     io_iterator_t iterator;
     io_object_t   device;
-    
-	IOMasterPort(MACH_PORT_NULL, &masterPort);
-    
+
     CFMutableDictionaryRef matchingDictionary = IOServiceMatching("AppleSMC");
-    result = IOServiceGetMatchingServices(masterPort, matchingDictionary, &iterator);
+    result = IOServiceGetMatchingServices(kIOMainPortDefault, matchingDictionary, &iterator);
     if (result != kIOReturnSuccess)
     {
         printf("Error: IOServiceGetMatchingServices() = %08x\n", result);
@@ -343,7 +340,7 @@ kern_return_t SMCGetKeyInfo(UInt32 key, SMCKeyData_keyInfo_t* keyInfo, io_connec
     kern_return_t result = kIOReturnSuccess;
     int i = 0;
     
-    OSSpinLockLock(&g_keyInfoSpinLock);
+    os_unfair_lock_lock(&g_keyInfoSpinLock);
     
     for (; i < g_keyInfoCacheCount; ++i)
     {
@@ -376,7 +373,7 @@ kern_return_t SMCGetKeyInfo(UInt32 key, SMCKeyData_keyInfo_t* keyInfo, io_connec
         }
     }
     
-    OSSpinLockUnlock(&g_keyInfoSpinLock);
+    os_unfair_lock_unlock(&g_keyInfoSpinLock);
     
     return result;
 }

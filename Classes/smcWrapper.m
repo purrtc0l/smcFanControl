@@ -22,8 +22,6 @@
  */
 
 #import "smcWrapper.h"
-#import <CommonCrypto/CommonDigest.h>
-NSString * const smc_checksum=@"4fc00a0979970ee8b55f078a0c793c4d";
 
 NSArray *allSensors;
 
@@ -70,11 +68,7 @@ NSArray *allSensors;
     NSString *sensor = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_TEMPERATURE_SENSOR];
     SMCReadKey2((char*)[sensor UTF8String], &val,conn);
     retValue = [self convertToNumber:val];
-#if TARGET_CPU_ARM64
-    allSensors = [NSArray arrayWithObjects:@"Tp01",@"Tp05",@"Tp09",@"Tp0b",@"Tp0D",@"Tp0H",@"Tp0L",@"Tp0P",@"Tp0T",@"Tp0X",nil];
-#else
     allSensors = [NSArray arrayWithObjects:@"TC0D",@"TC0P",@"TCAD",@"TC0H",@"TC0F",@"TCAH",@"TCBH",nil];
-#endif
     if (retValue<=0 || floor(retValue) == 129 ) { //workaround for some iMac Models
         for (NSString *sensor in allSensors) {
             SMCReadKey2((char*)[sensor UTF8String], &val,conn);
@@ -213,48 +207,6 @@ NSArray *allSensors;
     return mode;
 }
 
-
-+ (BOOL)validateSMC:(NSString*)path
-{
-    SecStaticCodeRef ref = NULL;
-    
-    NSURL * url = [NSURL URLWithString:path];
-    
-    OSStatus status;
-    
-    // obtain the cert info from the executable
-    status = SecStaticCodeCreateWithPath((__bridge CFURLRef)url, kSecCSDefaultFlags, &ref);
-    
-    if (status != noErr) {
-        return false;
-    }
-    
-    @try {
-        status = SecStaticCodeCheckValidity(ref, kSecCSDefaultFlags, nil);
-        
-        if (status != noErr) {
-            NSLog(@"Codesign verification failed: Error id = %d",status);
-            return false;
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Codesign exception %@",exception);
-        return false;
-    }
-    
-    return true;
-}
-
-+ (NSString*)createCheckSum:(NSString*)path {
-    NSData *d=[NSData dataWithContentsOfMappedFile:path];
-    unsigned char result[CC_MD5_DIGEST_LENGTH];
-    CC_MD5((void *)[d bytes], [d length], result);
-    NSMutableString *ret = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH*2];
-    for(int i = 0; i<CC_MD5_DIGEST_LENGTH; i++) {
-        [ret appendFormat:@"%02x",result[i]];
-    }
-    return ret;
-}
 
 //call smc binary with setuid rights and apply
 // The smc binary is given root permissions in FanControl.m with the setRights method.
