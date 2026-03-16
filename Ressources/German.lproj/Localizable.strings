@@ -1,10 +1,6 @@
-"Do you really want to delete the favorite %@?" = "Wollen Sie den Favoriten %@ wirklich löschen?";
-
 "Yes" = "Ja";
 
 "No" = "Nein";
-
-"Delete favorite" = "Favoriten löschen";
 
 "MainFan" = "Hauptlüfter";
 
@@ -20,22 +16,33 @@
 
 "Alert!" = "Achtung!";
 
-"Active Setting" = "Aktive Einstellung";
-
-"Remind me later" = "Später erinnern";
-
-"Consider a donation" = "Spenden...";
-
-"Never ask me again" = "Nie wieder fragen";
-
-"Donate over Paypal" = "Spenden über PayPal";
-
-"smcFanControl keeps your Mac cool since 2006.\n\nIf smcFanControl is helfpul for you and you want to support further development, a small donation over Paypal is much appreciated." = "smcFanControl hält seit 2006 Macs in aller Welt kühl.\n\nWenn Sie smcFanControl gerne benutzen und Sie die Weiterentwicklung unterstützen wollen, freuen wir uns über eine kleine Spende über PayPal.";
-
-"Do you want to reset smcFanControl to default settings? Favorites will be deleted and fans will return to default speed." = "Wollen Sie smcFanControl auf die Default-Einstellungen zurücksetzen?\nDie Favoriten werden gelöscht und die Lüfter auf Werkseinstellung gesetzt.";
+"Do you want to reset smcFanControl to default settings? Fans will return to default speed." = "Wollen Sie smcFanControl auf die Default-Einstellungen zurücksetzen?\nDie Lüfter werden auf Werkseinstellung gesetzt.";
 
 "Please shutdown your computer now to return to default fan settings." = "Bitte schalten Sie den Computer jetzt aus, um die Werkseinstellung für die Lüfter wiederherzustellen.";
 
 "Reset Settings" = "Einstellungen zurücksetzen";
 
 "Shutdown required" = "Ausschalten erforderlich";
+
+/* Sleep/Wake Fix — TODO: needs German translation */
+"Sleep/Wake Fix..." = "Sleep/Wake Fix...";
+
+"Sleep/Wake Fix for Intel Macs" = "Sleep/Wake Fix for Intel Macs";
+
+"Older Intel Macs can crash when waking from sleep due to macOS hibernation features designed for newer hardware. This fix disables hibernation and related features so your Mac sleeps and wakes reliably." = "Older Intel Macs can crash when waking from sleep due to macOS hibernation features designed for newer hardware. This fix disables hibernation and related features so your Mac sleeps and wakes reliably.";
+
+"No reboot required. Changes take effect immediately." = "No reboot required. Changes take effect immediately.";
+
+"Fix Applied" = "Fix Applied";
+
+"Needs Fix" = "Needs Fix";
+
+"Apply Fix" = "Apply Fix";
+
+"Restore Defaults" = "Restore Defaults";
+
+/* Menu items — TODO: needs German translation */
+"Quit smcFanControl CE" = "Quit smcFanControl CE";
+
+/* Support — TODO: needs German translation */
+"Support on Ko-fi" = "Support on Ko-fi";

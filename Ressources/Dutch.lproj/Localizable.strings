@@ -1,10 +1,6 @@
-"Do you really want to delete the favorite %@?" = "Weet je zeker dat je de favoriet %@ wilt wissen?";
-
 "Yes" = "Ja";
 
 "No" = "Nee";
-
-"Delete favorite" = "Verwijder Favoriet";
 
 "MainFan" = "Hoofd Fan";
 
@@ -20,23 +16,33 @@
 
 "Alert!" = "Let op!";
 
-"Active Setting" = "Actieve Instelling";
-
-
-"Remind me later" = "Remind me later";
-
-"Consider a donation" = "Consider a donation";
-
-"Never ask me again" = "Never ask me again";
-
-"Donate over Paypal" = "Donate over Paypal";
-
-"smcFanControl keeps your Mac cool since 2006.\n\nIf smcFanControl is helfpul for you and you want to support further development, a small donation over Paypal is much appreciated." = "smcFanControl keeps your Mac cool since 2006.\n\nIf smcFanControl is helfpul for you and you want to support further development, a small donation over Paypal is much appreciated.";
-
-"Do you want to reset smcFanControl to default settings? Favorites will be deleted and fans will return to default speed." = "Do you want to reset smcFanControl to default settings?\nFavorites will be deleted and fans will return to default speed.";
+"Do you want to reset smcFanControl to default settings? Fans will return to default speed." = "Do you want to reset smcFanControl to default settings?\nFans will return to default speed.";
 
 "Please shutdown your computer now to return to default fan settings." = "Please shutdown your computer now to return to default fan settings.";
 
 "Reset Settings" = "Reset Settings";
 
 "Shutdown required" = "Shutdown required";
+
+/* Sleep/Wake Fix — TODO: needs Dutch translation */
+"Sleep/Wake Fix..." = "Sleep/Wake Fix...";
+
+"Sleep/Wake Fix for Intel Macs" = "Sleep/Wake Fix for Intel Macs";
+
+"Older Intel Macs can crash when waking from sleep due to macOS hibernation features designed for newer hardware. This fix disables hibernation and related features so your Mac sleeps and wakes reliably." = "Older Intel Macs can crash when waking from sleep due to macOS hibernation features designed for newer hardware. This fix disables hibernation and related features so your Mac sleeps and wakes reliably.";
+
+"No reboot required. Changes take effect immediately." = "No reboot required. Changes take effect immediately.";
+
+"Fix Applied" = "Fix Applied";
+
+"Needs Fix" = "Needs Fix";
+
+"Apply Fix" = "Apply Fix";
+
+"Restore Defaults" = "Restore Defaults";
+
+/* Menu items — TODO: needs Dutch translation */
+"Quit smcFanControl CE" = "Quit smcFanControl CE";
+
+/* Support — TODO: needs Dutch translation */
+"Support on Ko-fi" = "Support on Ko-fi";
