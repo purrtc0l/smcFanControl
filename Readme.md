@@ -4,6 +4,24 @@
 
 Community-maintained fork of [smcFanControl](https://github.com/hholtmann/smcFanControl) for Intel Macs. Set a minimum fan speed to keep your Mac running cooler.
 
+## Community Edition (v2.6.2)
+
+This is a maintained fork of smcFanControl with bug fixes for Intel Macs.
+
+### Install via Homebrew (recommended)
+
+```bash
+brew tap wolffcatskyy/tap
+brew install --cask wolffcatskyy/tap/smcfancontrol
+```
+
+Installing via Homebrew bypasses macOS Gatekeeper, which blocks unsigned apps from being opened.
+
+### What's fixed
+
+- **Power management clamping bug** — Fixed an issue in FanControl.m where the power management system wasn't properly responding to fan speed changes. Setting a minimum fan speed now works reliably.
+- **Homebrew distribution** — Available as a Homebrew cask for easy installation without Gatekeeper workarounds.
+
 ## Install
 
 ```bash
