@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+    fan-settings.plist — System-level fan configuration for smcfancontrold.
+
+    This file is written by smcFanControl.app whenever the user changes fan
+    settings, and read by the boot daemon (smcfancontrold) at startup before
+    login. It lives at:
+
+      /Library/Application Support/smcFanControl/fan-settings.plist
+
+    Each entry in the "fans" array specifies:
+      id       — Fan index (0-based, matching SMC F{n}Mn keys)
+      min_rpm  — Minimum RPM to set at boot
+
+    The daemon will only apply these settings on OCLP-patched Macs unless
+    invoked with the -f (force) flag.
+-->
+<dict>
+    <key>fans</key>
+    <array>
+        <dict>
+            <key>id</key>
+            <integer>0</integer>
+            <key>min_rpm</key>
+            <integer>1800</integer>
+        </dict>
+        <dict>
+            <key>id</key>
+            <integer>1</integer>
+            <key>min_rpm</key>
+            <integer>1800</integer>
+        </dict>
+    </array>
+</dict>
+</plist>
