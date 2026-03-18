@@ -4,6 +4,22 @@
 
 Community-maintained fork of [smcFanControl](https://github.com/hholtmann/smcFanControl) for Intel Macs. Set a minimum fan speed to keep your Mac running cooler.
 
+---
+
+## 🔥 NEW: Boot-Time Fan Control for OCLP Macs
+
+Fans screaming at 100% on your OpenCore-patched Mac? Not anymore. smcFanControl now applies your fan settings **at boot, before you even log in** — the first fan control app to support this.
+
+- Auto-detects OCLP (OpenCore Legacy Patcher) installations
+- Applies saved fan speeds via Launch Daemon before login screen
+- Zero overhead — runs once at boot, then exits
+
+Works on all OCLP-patched Macs running macOS Sonoma, Ventura, and Monterey.
+
+👉 [How it works →](#oclp-boot-fan-control)
+
+---
+
 ## Install
 
 ```bash
