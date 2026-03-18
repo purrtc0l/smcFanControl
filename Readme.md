@@ -21,13 +21,15 @@ Homebrew bypasses this entirely by stripping the quarantine flag during install,
 
 ### Manual install (no Homebrew)
 
-Download the `.zip` from [GitHub Releases](https://github.com/wolffcatskyy/smcFanControl/releases), extract it, then remove the quarantine flag before first launch:
+Download the `.zip` from [GitHub Releases](https://github.com/wolffcatskyy/smcFanControl/releases), extract it, and move `smcFanControl.app` to `/Applications`.
 
-```bash
-xattr -cr /Applications/smcFanControl.app
-```
+If macOS blocks the app from opening:
 
-This is required because the app is unsigned. Homebrew handles this for you automatically.
+1. Right-click (or Control-click) smcFanControl.app and select **Open**
+2. Click **Open** in the dialog that appears
+3. Alternatively, go to **System Settings > Privacy & Security** and click **Open Anyway**
+
+Homebrew installs bypass Gatekeeper automatically.
 
 ## Bug Fixes
 
