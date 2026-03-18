@@ -25,6 +25,7 @@
 #import "FanControl.h"
 #import "MachineDefaults.h"
 #import "SleepWakeFix.h"
+#import "OCLPHelper.h"
 #import <Security/Authorization.h>
 #import <Security/AuthorizationDB.h>
 #import <Security/AuthorizationTags.h>
@@ -216,6 +217,8 @@ NSUserDefaults *defaults;
 	[faqText replaceCharactersInRange:NSMakeRange(0,0) withRTF: [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"F.A.Q" ofType:@"rtf"]]];
 	// Apply saved per-fan RPM settings (replaces old favorites-based apply)
 	[self applyPerFanSettings];
+	// Check for OCLP and prompt for boot daemon on first launch
+	[OCLPHelper checkAndPromptForDaemonInstall];
 	[[sliderCell dataCell] setControlSize:NSControlSizeSmall];
 	[self changeMenu:nil];
 	
@@ -564,6 +567,9 @@ NSUserDefaults *defaults;
     // Persist to NSUserDefaults
     NSString *prefKey = [NSString stringWithFormat:@"fan_%d_min_rpm", fanIndex];
     [[NSUserDefaults standardUserDefaults] setInteger:newRPM forKey:prefKey];
+
+    // Sync to boot daemon plist so next boot uses updated settings
+    [OCLPHelper syncFanSettingsWithDaemon];
 }
 
 /// Apply saved per-fan minimum RPM values to SMC (used on launch and wake).
@@ -893,6 +899,7 @@ NSUserDefaults *defaults;
 	[defaults synchronize];
 	[mainwindow close];
 	[self applyPerFanSettings];
+	[OCLPHelper syncFanSettingsWithDaemon];
 	undo_dic=[NSDictionary dictionaryWithDictionary:[defaults dictionaryRepresentation]];
 }
 

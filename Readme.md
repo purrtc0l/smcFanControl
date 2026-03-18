@@ -48,6 +48,35 @@ This fork fixes the clamping behavior so fan speeds are applied reliably regardl
 - **Auto-detect temperature unit** — Celsius or Fahrenheit from system locale, no manual setting
 - **Lightweight** — ~94% smaller than original (Sparkle framework removed)
 
+## OCLP Boot Fan Control
+
+If you're running [OpenCore Legacy Patcher](https://dortania.github.io/OpenCore-Legacy-Patcher/) (OCLP) on an unsupported Mac, fans typically run at 100% from boot until smcFanControl starts — which only happens after you log in.
+
+The **OCLP Boot Fan Daemon** fixes this by applying your saved fan settings at boot, before login. On first launch, smcFanControl auto-detects OCLP and offers to install the daemon.
+
+**How it works:**
+- A small LaunchDaemon (`smcfancontrold`) runs once at boot
+- It reads your saved fan settings from `/Library/Application Support/smcFanControl/fan-settings.plist`
+- It applies fan minimum RPMs via SMC, then exits
+- Settings are synced automatically whenever you adjust fan speeds in the app
+
+**Manual install (advanced):**
+```bash
+cd FanControlHelper
+make
+sudo make install
+# Edit fan settings:
+sudo cp fan-settings-example.plist "/Library/Application Support/smcFanControl/fan-settings.plist"
+```
+
+**Manual uninstall:**
+```bash
+cd FanControlHelper
+sudo make uninstall
+```
+
+See [`FanControlHelper/INTEGRATION.md`](FanControlHelper/INTEGRATION.md) for full technical details.
+
 ## smc CLI
 
 A standalone `smc` binary for reading SMC sensors and fan speeds from the terminal is included in releases. When installing via Homebrew, it is included automatically.
