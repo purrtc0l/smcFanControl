@@ -23,7 +23,7 @@ Works on all OCLP-patched Macs running supported macOS versions.
 ## Install
 
 ```bash
-brew tap wolffcatskyy/smcfancontrol
+brew tap wolffcatskyy/tap
 brew install --cask smcfancontrol
 ```
 
